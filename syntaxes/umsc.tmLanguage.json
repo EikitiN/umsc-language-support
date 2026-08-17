@@ -1,0 +1,53 @@
+{
+  "name": "UMsc",
+  "patterns": [
+    {
+      "include": "#keywords"
+    },
+    {
+      "include": "#escapes"
+    },
+    {
+      "include": "#strings"
+    },
+    {
+      "include": "#numbers"
+    }
+  ],
+  "repository": {
+    "keywords": {
+      "patterns": [
+        {
+          "match": "\\b(sc_if|jumpto|setvar|sc_calc|dialogue|debug_dispvar|dispIMG|statusIMG|sympleBGchange|console_dispvar|clear_scline_counter|release_arasuzi|disp_text|status_text|effect_screen|add_html|parallel|clearvar|clear_backlog|-|end)\\b",
+          "name": "keyword.control.umsc"
+        }
+      ]
+    },
+    "escapes": {
+      "patterns": [
+        {
+          "match": "\\\\s|\\\\n",
+          "name": "constant.character.escape.umsc"
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "begin": "\"",
+          "end": "\"",
+          "name": "string.quoted.double.umsc"
+        }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "match": "\\b[0-9]+\\b",
+          "name": "constant.numeric.umsc"
+        }
+      ]
+    }
+  },
+  "scopeName": "source.umsc"
+}
