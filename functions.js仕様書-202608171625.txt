@@ -1,0 +1,291 @@
+returnについて
+　return [num, data];
+num:
+　0 ボタン待ち
+　1 次に進む
+　2 dataが0-basedの次に実行する行番号
+　10 sc_varを保存してボタン待ち
+　11 sc_varを保存して次に進む
+　40 あらすじ番号を解放してボタン待ち
+　41 あらすじ番号を解放して次に進む
+data:
+　必要に合わせてそれぞれのコマンドごとに決定
+
+do_nextとは、このコマンドが実行されengine.jsに返り値が渡るとengine.jsが次のコマンドも自動実行するかのフラグ
+
+関数一覧:
+　sc_if:
+　　第一引数 条件式 変数、配列内アクセス、辞書内アクセス、[true/false]、数値、==,!=,>=,<=,>,<を利用可能
+　　第二引数 条件式がtrueのときに実行する行番号(1-based)
+　　第三引数 条件式がfalseのときに実行する行番号(1-based)
+　　return [2, result ? trueLine : falseLine]
+　　例: sc_if issue34_check["flag"]=="summary" 110 111
+　jumpto:
+　　第一引数 次に実行する行番号(1-based)
+　　return [2, Number(args[0]) - 1]
+　　例: jumpto 135
+　setvar:
+　　第一引数 do_nextフラグ[0/1]
+　　第二引数 設定する変数名(変数名、配列内アクセス、辞書内アクセス)
+　　第三引数 代入する値("文字列"、数値、配列[]、辞書{}、変数名、配列内アクセス、辞書内アクセス)
+　　return [11, null] / [10, null];
+　　例: setvar 1 i["value"] "振り返りの値"
+　　例: setvar 0 doc["count"] 3
+　sc_calc:
+　　第一引数 do_nextフラグ[0/1]
+　　第二引数 計算に使う変数(変数名、配列内アクセス、辞書内アクセス)
+　　第三引数 演算子(+,-,*,/,%,^)
+　　第四引数 計算に使う変数または値など(変数名、配列内アクセス、辞書内アクセス、"文字列(+のみ)"、数値)
+　　return [11, null] / [10, null]
+　　例: sc_calc 1 doc["count"] % 2
+　　例: sc_calc 0 i["value"] + "です"
+　dialogue:
+　　注意: テスト用関数。disp_textへ統合。利用時には警告
+　　第一引数 内容
+　　第二引数 nomal/html
+　　第三引数 内部キャラ名
+　　第四引数 表示キャラ名
+　　第五引数 補助オプション
+　　return [0, null]
+　debug_dispvar: //パス 今ある内容を消すかどうか do_next
+　　注意: テスト用関数。disp_textへ統合。利用時には警告
+　　第一引数 表示変数のパス
+　　第二引数 表示中の内容を消す[0/1]
+　　第三引数 do_nextフラグ[0/1]
+　　return [1, null] / [0, null]
+　dispIMG:
+　　第一引数 do_nextフラグ[0/1]
+　　第二引数 表示先
+　　　bg: 背景
+　　　chara: characanvas
+　　　back: back_item_canvas
+　　　front: front_item_canvas
+　　　その他: そのidの既存要素
+　　第三引数 表示フラグ[1/0]
+　　第四引数 画像パス(ASSETS.imgsまたはASSETS.svg内、非表示時はNone可)
+　　第五引数 フェード有無[1/0]
+　　第六引数 フェード時間[s]
+　　第七引数 画像要素id(省略可)
+　　return [1, null] / [0, null]
+　　背景は簡易的に引き延ばして表示し、フェードありの背景変更では一時レイヤーを使って重ね替える
+　　立ち絵や小物は指定した表示先内にimg要素を作成または再利用して表示する
+　　表示したimg要素には元画像パスを保持し、バックログのキャラアイコン解決などで参照できるようにする
+　　続きから再生などの即時実行中は、フェード有無が1でもフェード時間を0として即時反映する
+　　同じ画像要素idに対してフェードアウト中に再表示した場合は、前のフェードタイマーを破棄して新しい表示を優先する
+　　例: dispIMG 0 chara 1 material/chara_image/A_Kabura_webp/chara_A02.webp 0 0 kabura
+　　例: dispIMG 0 chara 1 material/chara_image/A_Kabura_webp/chara_A01.webp 1 0.5 kabura
+　　例: dispIMG 0 bg 1 material/back_image/chemistryclass.jpg 1 1
+　statusIMG:
+　　第一引数 do_nextフラグ[0/1]
+　　第二引数 対象id
+　　　bg: gamebg
+　　　chara: kari
+　　　back: dispIMG_back
+　　　front: dispIMG_front
+　　　その他: 任意idの既存要素
+　　第三引数 状態設定
+　　　例: {position:left,size:chara,duration:500,easing:ease}
+　　　例: {x:60,y:0,width:35,height:auto,rotate:10,rotateX:20,rotateY:-20,scale:1.1}
+　　　例: {flipX:1,opacity:0.8,brightness:80,blur:2,zIndex:40}
+　　　x, y, left, top, bottom, width, heightの数値は%として扱う。単位付き文字列はそのまま使用する。
+　　　translateX, translateY, perspectiveの数値はpxとして扱う。rotate, rotateX, rotateYの数値はdegとして扱う。
+　　　durationの数値はmsとして扱う。0または省略時は即時反映。
+　　　positionとsizeはsettings/chara_settings.jsonのposition/size設定名を参照する。
+　　　実装済みキー:
+　　　　position: settings/chara_settings.jsonのposition設定名。left, mid, center, right等を指定し、対応する位置設定を反映する。
+　　　　size: settings/chara_settings.jsonのsize設定名。chara, large, full等を指定し、対応するサイズ設定を反映する。
+　　　　x: 対象要素のleftに反映する。数値は%として扱う。
+　　　　y: 対象要素のtopに反映する。数値は%として扱う。指定時はbottomをautoにする。
+　　　　left: 対象要素のleftに反映する。xが指定されている場合はxを優先する。数値は%として扱う。
+　　　　top: 対象要素のtopに反映する。yが指定されている場合はyを優先する。数値は%として扱う。指定時はbottomをautoにする。
+　　　　bottom: 対象要素のbottomに反映する。数値は%として扱う。指定時はtopをautoにする。
+　　　　width: 対象要素のwidthに反映する。数値は%として扱う。
+　　　　height: 対象要素のheightに反映する。数値は%として扱う。
+　　　　zIndex: 対象要素のz-indexに反映する。
+　　　　opacity: 対象要素のopacityに反映する。
+　　　　transformOrigin: CSS変数--transform-originに反映し、回転や拡大縮小の基準位置を指定する。
+　　　　perspective: CSS変数--perspectiveに反映し、rotateX/rotateYの3D見え方を指定する。数値はpxとして扱う。
+　　　　translateX: CSS変数--translate-xに反映し、transform上の横方向移動量を指定する。数値はpxとして扱う。
+　　　　translateY: CSS変数--translate-yに反映し、transform上の縦方向移動量を指定する。数値はpxとして扱う。
+　　　　rotate: CSS変数--rotateに反映し、Z軸回転を指定する。数値はdegとして扱う。
+　　　　rotateX: CSS変数--rotate-xに反映し、X軸の3D回転を指定する。数値はdegとして扱う。
+　　　　rotateY: CSS変数--rotate-yに反映し、Y軸の3D回転を指定する。数値はdegとして扱う。
+　　　　scale: CSS変数--scale-xと--scale-yの両方に反映し、縦横同倍率で拡大縮小する。
+　　　　scaleX: CSS変数--scale-xに反映し、横方向の拡大縮小率を指定する。
+　　　　scaleY: CSS変数--scale-yに反映し、縦方向の拡大縮小率を指定する。
+　　　　flipX: 横方向反転を指定する。0またはfalseの場合は反転を解除し、それ以外の場合は--scale-xを負の値にする。
+　　　　flipY: 縦方向反転を指定する。0またはfalseの場合は反転を解除し、それ以外の場合は--scale-yを負の値にする。
+　　　　filter: 対象要素のfilterに直接反映する。Noneまたはnoneの場合はfilterを空にする。
+　　　　brightness: filterのbrightness()に反映する。数値は%として扱う。
+　　　　blur: filterのblur()に反映する。数値はpxとして扱う。
+　　　　saturate: filterのsaturate()に反映する。数値は%として扱う。
+　　　　duration: CSS変数--durationに反映し、transition時間を指定する。数値はmsとして扱う。
+　　　　続きから再生などのdo_inaninstant中はdurationを0msとして扱い、状態を即時反映する。
+　　　　easing: CSS変数--easingに反映し、transitionのイージングを指定する。省略時はease。
+　　return [1, null] / [0, null]
+　　SVGはASSETS.svg内のSVGテキストをbase64のdata URLへ変換して表示する
+　　例: statusIMG 0 kabura {position:right,rotate:8,scale:1.1,duration:800,easing:ease-in-out}
+　sympleBGchange:
+　　注意: テスト用関数。dispIMGへ統合。利用時には警告
+　　第一引数 画像パス(ASSETS.img内)
+　　第二引数 画像を表示するか[0/1]
+　　第三引数 画像を消すか[0/1]
+　　第四引数 do_nextフラグ[0/1]
+　　return [1, null] / [0, null]
+　console_dispvar:
+　　注意: テスト用関数。disp_textへ統合。利用時には警告
+　　第一引数 変数パス
+　　第二引数 do_nextフラグ[0/1]
+　　return [1, null] / [0, null]
+　clear_scline_counter:
+　　引数なし
+　　return [1, null]
+　　おなじ行をシナリオ全体の1000倍の回数実行すると無限ループと判断し停止してしまうため、その場所で制限をリセットするコマンド。
+　　例: clear_scline_counter
+　release_arasuzi:
+　　第一引数 do_nextフラグ[0/1]
+　　第二引数 解放するあらすじ番号
+　　第二引数が正の整数のとき return [41, 番号] / [40, 番号]
+　　第二引数が不正なとき return [1, null] / [0, null]
+　　解放済み番号はengine.jsのreleased_arasuziで保持
+　　例: release_arasuzi 1 2
+　disp_text:
+　　一部文字に演出をかけたい場合は、第三引数のHTML要素パースで<span id="任意id">対象文字</span>のように対象を作り、status_textでそのidを指定して操作する。
+　　第一引数 do_nextフラグ
+　　第二引数 表示場所[dialogue/console/その他は表示場所のid]
+　　　その他のid指定は既存HTML要素の内容を書き換えるためのもの。存在しないHTML要素を新しく作成する機能ではない
+　　第三引数 表示内容(${sc_varの中のパス}でその変数内のデータを文字列に変換したもの、エスケープされてない<は次の>までをhtml要素として扱う。これには対応する</～>が必要となる)
+　　第四引数 スタイル設定名(デフォルト値はNone), キャラid(キャラ立ち絵のフォルダ名)。settings/chara_settings.jsonのcolorを使って名前枠のペン色を変更する。dialogueの名前枠へのみ反映される。
+　　第五引数 表示名。Noneは表示名を表示しない。<漢字:ルビ>でルビを表現
+　　第六引数 {設定項目:値}
+　　　表示先要素へstyleを適用する。例: {"color":"#ffdddd","fontWeight":"bold"}
+　　　idsを指定すると任意idへstyleを適用する。例: {"ids":{"targetId":{"color":"red"}}}
+　　　nameを指定するとcharanameへstyleを適用する。例: {"name":{"color":"white"}}
+　　　nameFrameを指定するとname_frameへstyleを適用する。例: {"nameFrame":{"opacity":"0.8"}}
+　　　fadeInを指定すると表示先要素をフェードインする[1/0]。省略時は0。
+　　　fadeInDurationまたはfadeInTimeでフェードイン時間を秒数指定する。省略時は0.5秒。
+　　　fadeOutを指定すると、名前なし表示や任意id表示時のセリフ欄クリアをフェードアウトする[1/0]。省略時は0。
+　　　fadeOutDurationまたはfadeOutTimeでフェードアウト時間を秒数指定する。省略時は0.5秒。
+　　　dimInactiveCharaを指定すると、話していないキャラクター画像を暗くする処理を切り替える[1/0]。dialogue/任意idでは省略時1、consoleでは省略時0。
+　　　任意id表示で第五引数がNone/未指定のときは、話者idがあっても表示中のキャラクター画像を全員暗くする。
+　　　speakerIdを指定すると、話者判定に使う画像idを第四引数の代わりに指定できる。
+　　　inactiveCharaBrightnessで話していないキャラクター画像の明るさを指定する。省略時は55%。
+　　　inactiveCharaDurationまたはinactiveCharaTimeで暗くするfilterの変化時間を秒数指定する。省略時は0.3秒。
+　　　続きから再生などの即時実行中は、fadeIn/fadeOut/inactiveCharaDurationを0として即時反映する。
+　　第七引数 任意id表示時にセリフ欄を空にするか[1/0]。省略時は第五引数に名前がある場合0、名前がNoneまたは未指定の場合1。
+　　第二引数がdialogueのとき return [30/31, [第四引数, 第五引数]]
+　　第二引数がconsoleまたは任意idのとき return [0/1, null]
+　　例: disp_text 0 dialogue issue34\ssc_calc後の値は${doc["count"]}です。 Z_test Issue<計算:けいさん> {}
+　　例: disp_text 0 dialogue 窓を\s開けると\n涼しい\s風が\s入ってきた。 Z_test 加藤<結衣:ゆい> {}
+　　例: disp_text 0 nextbutton 名前あり空欄化 Z_test 表示<名:めい> {} 1
+　　例: disp_text 1 console console:${disp_text_test["message"]} None None {}
+　status_text:
+　　一部文字に演出をかけたい場合は、disp_textで<span id="任意id">対象文字</span>のように対象を作ってから、そのidを第二引数に指定する。
+　　第一引数 do_nextフラグ[0/1]
+　　第二引数 対象id
+　　　dialogue: textcontent
+　　　text: textcontent
+　　　name: charaname
+　　　nameFrame: name_frame
+　　　textFrame: textframe
+　　　その他: 任意idの既存要素
+　　第三引数 状態設定
+　　　例: {color:#ff99ff,scale:1.15,shake:1,duration:500,easing:ease}
+　　　color: 対象要素の文字色に反映する。
+　　　opacity: 対象要素の透明度に反映する。
+　　　scale: CSS変数--text-scale-xと--text-scale-yの両方に反映し、縦横同倍率で拡大縮小する。
+　　　scaleX: CSS変数--text-scale-xに反映し、横方向の拡大縮小率を指定する。
+　　　scaleY: CSS変数--text-scale-yに反映し、縦方向の拡大縮小率を指定する。
+　　　transformOrigin: CSS変数--text-transform-originに反映し、拡大縮小の基準位置を指定する。
+　　　duration: CSS変数--text-durationに反映し、色、拡大縮小、透明度のtransition時間を指定する。数値はmsとして扱う。
+　　　続きから再生などのdo_inaninstant中はdurationを0msとして扱い、揺れアニメーションは再生しない。
+　　　easing: CSS変数--text-easingに反映し、transitionのイージングを指定する。省略時はease。
+　　　shake: 0またはfalseの場合は揺れを解除し、それ以外の場合は揺れを実行する。数値の場合は揺れ幅pxとして扱う。
+　　　shakeAmount: 揺れ幅を指定する。単位付き文字列を使用できる。省略時は4px。
+　　　shakeDuration: 揺れアニメーション時間を指定する。数値はmsとして扱う。省略時はdurationまたは500ms。
+　　　shakeEasing: 揺れアニメーションのイージングを指定する。省略時はeasingまたはease-in-out。
+　　　shakeCount: 揺れアニメーションの繰り返し回数を指定する。省略時は1。
+　　return [1, null] / [0, null]
+　　例: status_text 0 dialogue {color:white,scale:1,shake:0,duration:300}
+　　例: status_text 0 name {color:white,scale:1,duration:300}
+　　例: status_text 0 add_html_test {color:#ffcc66,scale:1.15,duration:300}
+　effect_screen:
+　　第一引数 do_nextフラグ[0/1]
+　　第二引数以降 画面全体エフェクト設定
+　　　例: {type:fade,color:black,opacity:0.5,duration:500,easing:ease}
+　　　例: {type:flash,color:white,opacity:0.9,duration:300}
+　　　例: {type:shake,amount:8,duration:500,count:1}
+　　　例: {type:filter,brightness:80,blur:1,saturate:60,duration:500}
+　　　例: {type:slide,direction:left,distance:4%,duration:500}
+　　　例: {type:wipe,direction:right,color:black,opacity:0.8,duration:500}
+　　　type: fade, color, filter, flash, shake, slide, wipe, clearを指定する。省略時はfade。
+　　　effect: typeの別名として使用できる。
+　　　color: オーバーレイ色を指定する。fade/wipeは省略時black、flashは省略時white、filterは省略時transparent。
+　　　opacity: オーバーレイの透明度を指定する。省略時は1。
+　　　durationまたはtime: エフェクト時間を指定する。数値はmsとして扱う。
+　　　easing: transitionまたはanimationのイージングを指定する。省略時はease。
+　　　mixBlendMode: オーバーレイのmix-blend-modeを指定する。
+　　　filter: backdrop-filterに直接反映する。Noneまたはnoneの場合は空にする。
+　　　brightness: backdrop-filterのbrightness()に反映する。数値は%として扱う。
+　　　blur: backdrop-filterのblur()に反映する。数値はpxとして扱う。
+　　　saturate: backdrop-filterのsaturate()に反映する。数値は%として扱う。
+　　　amount: shakeの横揺れ幅を指定する。数値はpxとして扱う。
+　　　amountX: shakeの横揺れ幅を指定する。amountより優先する。
+　　　amountY: shakeの縦揺れ幅を指定する。数値はpxとして扱う。省略時は0。
+　　　count: shake/slideの繰り返し回数を指定する。省略時は1。
+　　　direction: slide/wipeの方向を指定する。left/right/up/downを使用する。
+　　　distance: slideの移動量を指定する。数値はpxとして扱う。単位付き文字列も使用できる。
+　　　clear: typeに指定すると画面全体エフェクトを解除する。
+　　fade/color/filterはオーバーレイを残す。解除する場合はtype:clearを使う。
+　　flash/wipeは一時オーバーレイを作成し、完了後に削除する。
+　　オーバーレイは#gamebgの表示範囲に合わせる。#gamebgが見つからない場合は#maindisplaybase全体に適用する。
+　　オーバーレイ使用中は、ワイプが画面外の余白へ見えないよう#maindisplaybaseの外側表示を一時的に隠す。
+　　shake/slideは#maindisplaybaseへ一時的なanimationを付与し、完了後に解除する。
+　　続きから再生などの即時実行中は、durationを0として扱う。
+　　return [1, null] / [0, null]
+　　例: effect_screen 0 {type:fade,color:black,opacity:0.45,duration:500}
+　　例: effect_screen 0 {type:clear,duration:400}
+　add_html:
+　　第一引数 do_nextフラグ[0/1]
+　　第二引数 追加先の親要素id
+　　　dialogueを指定した場合はtextcontentへ追加する。
+　　　その他は既存HTML要素のidとして扱う。
+　　第三引数 追加位置
+　　　beforeend: 追加先の最後に追加する。
+　　　afterbegin: 追加先の最初に追加する。
+　　　beforebegin: 追加先の直前に追加する。
+　　　afterend: 追加先の直後に追加する。
+　　第四引数以降 追加するHTML
+　　　HTML断片としてパースし、タグの入れ子や属性の形を保ったまま追加する。
+　　　sc内で空白を含める場合は\sを使用できる。
+　　　例: add_html 0 dialogue beforeend <span\sid="sample">追加HTML</span>
+　　追加先が見つからない、追加位置が不正、HTMLが空の場合はconsole.warnを出し、画面は変更しない。
+　　return [1, null] / [0, null]
+　　例: add_html 0 dialogue beforeend <span\sid="add_html_test"\sstyle="color:#66ffcc;font-weight:bold;">SCから追加したHTML要素</span>
+　parallel:　//未実装。実装次第追加。
+　　第一引数 do_nextフラグ[0/1]
+　　第二引数 行番号/funcName(args)
+　　第三引数 行番号/funcName(args)
+　clearvar：
+　　第一引数 do_nextフラグ
+　　第二引数 変数パス
+　　第三引数 設定:
+　　　1:再帰的に下層をundefinedに置き換え(辞書のキーは残す)
+　　　2:変数自体の削除(その下層の変数も)->配列は消した分詰められる
+　　　3:最外層のみundefinedに置き換え
+　　例: clearvar 1 issue34_check["value"] 3
+　clear_backlog:
+　　第一引数 do_nextフラグ
+　　ここまでのバックログの破棄
+　　return [51, null] : [50, null]
+　　例: clear_backlog 1
+　-:
+　　引数なし
+　　return [1, null]
+　　行を埋めるためのダミーコマンド
+　　例: -
+　end:
+　　引数なし
+　　return [1, null]
+　　シナリオの最後を示す
+　　例: end
