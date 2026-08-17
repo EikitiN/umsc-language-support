@@ -1,0 +1,7 @@
+拡張機能について、
+編集したらpackage.jsonのversionを編集し、
+npm run compile
+npx @vscode/vsce package
+を実行
+
+その後、もう一度拡張機能のvsixからのインストール
