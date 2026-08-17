@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UMsc Scenario Editor</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: #1e1e1e;
+      color: #cccccc;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      background-color: #252526;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #3c3c3c;
+    }
+    h1 {
+      margin: 0;
+      font-size: 16px;
+      color: #ffffff;
+    }
+    .btn-group {
+      display: flex;
+      gap: 10px;
+    }
+    button, a.btn {
+      background-color: #0e639c;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      font-size: 13px;
+      border-radius: 2px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+    }
+    button:hover, a.btn:hover {
+      background-color: #1177bb;
+    }
+    .btn-secondary {
+      background-color: #3c3c3c;
+    }
+    .btn-secondary:hover {
+      background-color: #505050;
+    }
+    #editor-container {
+      flex: 1;
+      width: 100%;
+    }
+  </style>
+  <!-- Monaco Editor の読み込み (CDN) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
+</head>
+<body>
+
+  <header>
+    <h1>UMsc Scenario Editor (.sc)</h1>
+    <div class="btn-group">
+      <button onclick="copyText()">テキストをコピー</button>
+      <button onclick="downloadFile()">.sc ファイルを保存</button>
+      <a href="./umsc-language-support-0.0.1.vsix" download class="btn btn-secondary">VSCode拡張機能(.vsix)をダウンロード</a>
+    </div>
+  </header>
+
+  <div id="editor-container"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
