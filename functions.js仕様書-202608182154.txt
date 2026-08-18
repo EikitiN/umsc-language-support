@@ -279,6 +279,25 @@ do_nextとは、このコマンドが実行されengine.jsに返り値が渡る�
 　　ここまでのバックログの破棄
 　　return [51, null] : [50, null]
 　　例: clear_backlog 1
+　qr:
+　　引数: 許可するqrコード識別記号
+　　return [2, 実行する行番号(別txtより取得)]
+　　例: qr 3 3-b 3-c 4
+　change_classList:
+　　第一引数 do_nextフラグ
+　　第二引数 設定する対象のセレクター
+　　第三引数 編集するクラス
+　　第四引数 add/remove
+　　第五引数 returnを返すまでの時間
+　　return [1, null] : [0, null]
+　puzzle:
+　　第一引数: 謎解き番号
+　　第二引数: 答えの種類(text/qr)
+　　第三引数: 正しい回答/qrコードの文字列
+　　第四引数: 正答時に実行する行番号(1-based)
+　　第五引数: 誤答時に実行する行番号(1-based)
+　　第六引数: ギブアップ時に実行する行番号(1-based)
+　　return [2, 次に実行する行番号(0-based)]
 　-:
 　　引数なし
 　　return [1, null]
