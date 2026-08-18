@@ -2000,6 +2000,30 @@ var COMMAND_SPECS = {
     example: 'add_html 0 dialogue beforeend <span\\sid="test">text</span>',
     checkDoNext: true
   },
+  "qr": {
+    name: "qr",
+    minArgs: 1,
+    maxArgs: 99,
+    description: "QR\u30B3\u30FC\u30C9\u3092\u8AAD\u307F\u53D6\u308A\u307E\u3059\u3002\n\u5404\u5F15\u6570: \u8A31\u5BB9\u3059\u308Bqr\u8B58\u5225\u8A18\u53F7",
+    example: "qr 0 1 https://example.com",
+    checkDoNext: true
+  },
+  "change_classList": {
+    name: "change_classList",
+    minArgs: 4,
+    maxArgs: 4,
+    description: "\u8981\u7D20\u306ECSS\u30AF\u30E9\u30B9\u3092\u8FFD\u52A0\u30FB\u524A\u9664\u30FB\u30C8\u30B0\u30EB\u3057\u307E\u3059\u3002\n\u7B2C1\u5F15\u6570: do_next[0/1]\n\u7B2C2\u5F15\u6570: \u5BFE\u8C61\u8981\u7D20ID\n\u7B2C3\u5F15\u6570: \u30AF\u30E9\u30B9\u540D\n\u7B2C4\u5F15\u6570: \u64CD\u4F5C(add/remove)",
+    example: "change_classList 0 dialogue_area active add",
+    checkDoNext: true
+  },
+  "puzzle": {
+    name: "puzzle",
+    minArgs: 6,
+    maxArgs: 6,
+    description: "\u8B0E\u89E3\u304D\u30E2\u30FC\u30C9\u3002\n\u7B2C\u4E00\u5F15\u6570: \u8B0E\u89E3\u304D\u756A\u53F7\n\u7B2C\u4E8C\u5F15\u6570: \u7B54\u3048\u306E\u7A2E\u985E(text/qr)\n\u7B2C\u4E09\u5F15\u6570: \u6B63\u3057\u3044\u56DE\u7B54/qr\u30B3\u30FC\u30C9\u306E\u6587\u5B57\u5217/n\u7B2C\u56DB\u5F15\u6570: \u6B63\u7B54\u6642\u306B\u5B9F\u884C\u3059\u308B\u884C\u756A\u53F7(1-based)\n\u7B2C\u4E94\u5F15\u6570: \u8AA4\u7B54\u6642\u306B\u5B9F\u884C\u3059\u308B\u884C\u756A\u53F7(1-based)\n\u7B2C\u516D\u5F15\u6570: \u30AE\u30D6\u30A2\u30C3\u30D7\u6642\u306B\u5B9F\u884C\u3059\u308B\u884C\u756A\u53F7(1-based)",
+    example: "puzzle 0 text ABCDEF 1 2 3",
+    checkDoNext: true
+  },
   "parallel": {
     name: "parallel",
     minArgs: 3,
@@ -2038,6 +2062,69 @@ var COMMAND_SPECS = {
     description: "\u30B7\u30CA\u30EA\u30AA\u306E\u6700\u5F8C\u3092\u793A\u3057\u307E\u3059\u3002",
     example: "end"
   }
+};
+var JSON_KEY_COMPLETIONS = {
+  statusIMG: [
+    { label: "position", detail: "\u4F4D\u7F6E\u8A2D\u5B9A\u540D", doc: "settings/chara_settings.json \u306E left, mid, center, right \u7B49\u3092\u6307\u5B9A" },
+    { label: "size", detail: "\u30B5\u30A4\u30BA\u8A2D\u5B9A\u540D", doc: "settings/chara_settings.json \u306E chara, large, full \u7B49\u3092\u6307\u5B9A" },
+    { label: "x", detail: "\u6A2A\u4F4D\u7F6E (%)", doc: "\u5BFE\u8C61\u8981\u7D20\u306E left \u306B\u53CD\u6620\u3002\u6570\u5024\u306F %" },
+    { label: "y", detail: "\u7E26\u4F4D\u7F6E (%)", doc: "\u5BFE\u8C61\u8981\u7D20\u306E top \u306B\u53CD\u6620 (bottom\u306Fauto\u5316)\u3002\u6570\u5024\u306F %" },
+    { label: "left", detail: "\u6A2A\u4F4D\u7F6E (%)", doc: "x \u304C\u6307\u5B9A\u3055\u308C\u3066\u3044\u306A\u3044\u5834\u5408\u306E left \u6307\u5B9A\u3002\u6570\u5024\u306F %" },
+    { label: "top", detail: "\u7E26\u4F4D\u7F6E (%)", doc: "y \u304C\u6307\u5B9A\u3055\u308C\u3066\u3044\u306A\u3044\u5834\u5408\u306E top \u6307\u5B9A\u3002\u6570\u5024\u306F %" },
+    { label: "bottom", detail: "\u4E0B\u4F4D\u7F6E (%)", doc: "bottom \u306B\u53CD\u6620 (top\u306Fauto\u5316)\u3002\u6570\u5024\u306F %" },
+    { label: "width", detail: "\u5E45 (%)", doc: "\u6570\u5024\u306F %" },
+    { label: "height", detail: "\u9AD8\u3055 (%)", doc: "\u6570\u5024\u306F %" },
+    { label: "zIndex", detail: "\u91CD\u306A\u308A\u9806 (z-index)", doc: "\u6570\u5024\u3067\u6307\u5B9A" },
+    { label: "opacity", detail: "\u4E0D\u900F\u660E\u5EA6 (0.0\u301C1.0)", doc: "0(\u900F\u660E) \u301C 1(\u4E0D\u900F\u660E)" },
+    { label: "transformOrigin", detail: "\u56DE\u8EE2/\u62E1\u5927\u57FA\u6E96\u70B9", doc: '\u4F8B: "center center", "bottom center"' },
+    { label: "perspective", detail: "3D\u5965\u884C\u304D (px)", doc: "rotateX/rotateY\u306E\u9060\u8FD1\u611F\u3002\u6570\u5024\u306F px" },
+    { label: "translateX", detail: "X\u79FB\u52D5\u91CF (px)", doc: "\u6570\u5024\u306F px" },
+    { label: "translateY", detail: "Y\u79FB\u52D5\u91CF (px)", doc: "\u6570\u5024\u306F px" },
+    { label: "rotate", detail: "Z\u8EF8\u56DE\u8EE2 (deg)", doc: "\u6570\u5024\u306F deg" },
+    { label: "rotateX", detail: "X\u8EF83D\u56DE\u8EE2 (deg)", doc: "\u6570\u5024\u306F deg" },
+    { label: "rotateY", detail: "Y\u8EF83D\u56DE\u8EE2 (deg)", doc: "\u6570\u5024\u306F deg" },
+    { label: "scale", detail: "\u62E1\u5927\u7E2E\u5C0F\u7387 (\u7E26\u6A2A\u4E21\u65B9)", doc: "1 \u304C\u7B49\u500D (\u4F8B: 1.2)" },
+    { label: "scaleX", detail: "\u6A2A\u65B9\u5411\u62E1\u5927\u7E2E\u5C0F\u7387", doc: "1 \u304C\u7B49\u500D" },
+    { label: "scaleY", detail: "\u7E26\u65B9\u5411\u62E1\u5927\u7E2E\u5C0F\u7387", doc: "1 \u304C\u7B49\u500D" },
+    { label: "flipX", detail: "\u5DE6\u53F3\u53CD\u8EE2 (1/0)", doc: "1 \u3067\u53CD\u8EE2\u30010 \u3067\u89E3\u9664" },
+    { label: "flipY", detail: "\u4E0A\u4E0B\u53CD\u8EE2 (1/0)", doc: "1 \u3067\u53CD\u8EE2\u30010 \u3067\u89E3\u9664" },
+    { label: "filter", detail: "CSS\u30D5\u30A3\u30EB\u30BF\u30FC\u76F4\u63A5\u6307\u5B9A", doc: "None \u307E\u305F\u306F none \u3067\u89E3\u9664" },
+    { label: "brightness", detail: "\u660E\u308B\u3055 (%)", doc: "\u6570\u5024\u306F % (\u4F8B: 80, 120)" },
+    { label: "blur", detail: "\u307C\u304B\u3057 (px)", doc: "\u6570\u5024\u306F px" },
+    { label: "saturate", detail: "\u5F69\u5EA6 (%)", doc: "\u6570\u5024\u306F %" },
+    { label: "duration", detail: "\u5909\u5316\u6642\u9593 (ms)", doc: "\u30A2\u30CB\u30E1\u30FC\u30B7\u30E7\u30F3\u6642\u9593\u3002\u6570\u5024\u306F ms" },
+    { label: "easing", detail: "\u30A4\u30FC\u30B8\u30F3\u30B0", doc: "ease, linear, ease-in-out \u7B49" }
+  ],
+  disp_text: [
+    { label: "color", detail: "\u6587\u5B57\u8272", doc: 'CSS\u30AB\u30E9\u30FC\u30B3\u30FC\u30C9 (\u4F8B: "#ffdddd", "red")' },
+    { label: "fontWeight", detail: "\u6587\u5B57\u306E\u592A\u3055", doc: "bold, normal \u7B49" },
+    { label: "ids", detail: "\u4EFB\u610FID\u7528\u30B9\u30BF\u30A4\u30EB\u8A2D\u5B9A", doc: '\u4F8B: {"targetId":{"color":"red"}}' },
+    { label: "name", detail: "\u540D\u524D\u67A0\u30B9\u30BF\u30A4\u30EB\u8A2D\u5B9A", doc: '\u4F8B: {"name":{"color":"white"}}' },
+    { label: "nameFrame", detail: "\u540D\u524D\u30D5\u30EC\u30FC\u30E0\u30B9\u30BF\u30A4\u30EB\u8A2D\u5B9A", doc: '\u4F8B: {"nameFrame":{"opacity":"0.8"}}' },
+    { label: "fadeIn", detail: "\u30D5\u30A7\u30FC\u30C9\u30A4\u30F3\u6709\u7121 (1/0)", doc: "1 \u3067\u6709\u52B9\u30010 \u3067\u7121\u52B9 (\u30C7\u30D5\u30A9\u30EB\u30C8: 0)" },
+    { label: "fadeInDuration", detail: "\u30D5\u30A7\u30FC\u30C9\u30A4\u30F3\u6642\u9593 (\u79D2)", doc: "\u79D2\u6570\u3067\u6307\u5B9A (\u30C7\u30D5\u30A9\u30EB\u30C8: 0.5)" },
+    { label: "fadeOut", detail: "\u30D5\u30A7\u30FC\u30C9\u30A2\u30A6\u30C8\u6709\u7121 (1/0)", doc: "1 \u3067\u6709\u52B9\u30010 \u3067\u7121\u52B9 (\u30C7\u30D5\u30A9\u30EB\u30C8: 0)" },
+    { label: "fadeOutDuration", detail: "\u30D5\u30A7\u30FC\u30C9\u30A2\u30A6\u30C8\u6642\u9593 (\u79D2)", doc: "\u79D2\u6570\u3067\u6307\u5B9A (\u30C7\u30D5\u30A9\u30EB\u30C8: 0.5)" },
+    { label: "dimInactiveChara", detail: "\u975E\u8A71\u8005\u6697\u8EE2\u6709\u7121 (1/0)", doc: "1 \u3067\u4ED6\u306E\u30AD\u30E3\u30E9\u3092\u6697\u304F\u3059\u308B (dialogue\u6642\u30C7\u30D5\u30A9\u30EB\u30C8: 1)" },
+    { label: "speakerId", detail: "\u8A71\u8005\u753B\u50CFID", doc: "\u7B2C4\u5F15\u6570\u306E\u4EE3\u308F\u308A\u306B\u5224\u5B9A\u306B\u4F7F\u3046\u753B\u50CFID" },
+    { label: "inactiveCharaBrightness", detail: "\u975E\u8A71\u8005\u6642\u306E\u660E\u308B\u3055 (%)", doc: "\u6570\u5024\u306F % (\u30C7\u30D5\u30A9\u30EB\u30C8: 55)" },
+    { label: "inactiveCharaDuration", detail: "\u975E\u8A71\u8005\u6697\u8EE2\u30D5\u30A7\u30FC\u30C9\u6642\u9593 (\u79D2)", doc: "\u79D2\u6570\u3067\u6307\u5B9A (\u30C7\u30D5\u30A9\u30EB\u30C8: 0.3)" }
+  ],
+  status_text: [
+    { label: "color", detail: "\u6587\u5B57\u8272", doc: 'CSS\u30AB\u30E9\u30FC\u30B3\u30FC\u30C9 (\u4F8B: "#ff99ff")' },
+    { label: "opacity", detail: "\u4E0D\u900F\u660E\u5EA6 (0.0\u301C1.0)", doc: "0(\u900F\u660E) \u301C 1(\u4E0D\u900F\u660E)" },
+    { label: "scale", detail: "\u6587\u5B57\u62E1\u5927\u7E2E\u5C0F\u7387 (\u7E26\u6A2A\u4E21\u65B9)", doc: "1 \u304C\u7B49\u500D (\u4F8B: 1.15)" },
+    { label: "scaleX", detail: "\u6A2A\u65B9\u5411\u62E1\u5927\u7E2E\u5C0F\u7387", doc: "1 \u304C\u7B49\u500D" },
+    { label: "scaleY", detail: "\u7E26\u65B9\u5411\u62E1\u5927\u7E2E\u5C0F\u7387", doc: "1 \u304C\u7B49\u500D" },
+    { label: "transformOrigin", detail: "\u62E1\u5927\u7E2E\u5C0F\u57FA\u6E96\u70B9", doc: '\u4F8B: "center center"' },
+    { label: "duration", detail: "\u5909\u5316\u6642\u9593 (ms)", doc: "\u8272/\u62E1\u5927/\u900F\u660E\u5EA6\u306E\u5909\u5316\u6642\u9593\u3002\u6570\u5024\u306F ms" },
+    { label: "easing", detail: "\u30A4\u30FC\u30B8\u30F3\u30B0", doc: "\u7701\u7565\u6642\u306F ease" },
+    { label: "shake", detail: "\u63FA\u308C\u6307\u5B9A (1/0 \u307E\u305F\u306F px)", doc: "0 \u3067\u89E3\u9664\u30011 \u307E\u305F\u306F\u63FA\u308C\u5E45\u6570\u5024(px)\u3067\u5B9F\u884C" },
+    { label: "shakeAmount", detail: "\u63FA\u308C\u5E45 (px\u7B49)", doc: '\u4F8B: "4px", "8px"' },
+    { label: "shakeDuration", detail: "\u63FA\u308C\u6642\u9593 (ms)", doc: "\u6570\u5024\u306F ms (\u30C7\u30D5\u30A9\u30EB\u30C8: 500)" },
+    { label: "shakeEasing", detail: "\u63FA\u308C\u30A4\u30FC\u30B8\u30F3\u30B0", doc: "\u30C7\u30D5\u30A9\u30EB\u30C8: ease-in-out" },
+    { label: "shakeCount", detail: "\u63FA\u308C\u7E70\u308A\u8FD4\u3057\u56DE\u6570", doc: "\u30C7\u30D5\u30A9\u30EB\u30C8: 1" }
+  ]
 };
 function activate(context) {
   const diagnosticCollection = vscode.languages.createDiagnosticCollection("umsc");
@@ -2112,19 +2199,45 @@ function activate(context) {
   if (vscode.window.activeTextEditor) {
     validateDocument(vscode.window.activeTextEditor.document);
   }
-  const completionProvider = vscode.languages.registerCompletionItemProvider("umsc", {
-    provideCompletionItems() {
-      return Object.values(COMMAND_SPECS).map((spec) => {
-        const item = new vscode.CompletionItem(spec.name, vscode.CompletionItemKind.Function);
-        item.detail = spec.example;
-        item.documentation = new vscode.MarkdownString(spec.description);
-        return item;
-      });
-    }
-  });
+  const completionProvider = vscode.languages.registerCompletionItemProvider(
+    "umsc",
+    {
+      provideCompletionItems(document, position) {
+        const lineText = document.lineAt(position.line).text;
+        const textUntilPosition = lineText.substring(0, position.character);
+        const firstWord = lineText.trim().split(/\s+/)[0];
+        const lastOpenBrace = textUntilPosition.lastIndexOf("{");
+        const lastCloseBrace = textUntilPosition.lastIndexOf("}");
+        if (lastOpenBrace !== -1 && lastOpenBrace > lastCloseBrace) {
+          if (JSON_KEY_COMPLETIONS[firstWord]) {
+            return JSON_KEY_COMPLETIONS[firstWord].map((item) => {
+              const completionItem = new vscode.CompletionItem(item.label, vscode.CompletionItemKind.Property);
+              completionItem.insertText = `${item.label}: `;
+              completionItem.detail = item.detail;
+              completionItem.documentation = new vscode.MarkdownString(item.doc);
+              return completionItem;
+            });
+          }
+        }
+        return Object.values(COMMAND_SPECS).map((spec) => {
+          const item = new vscode.CompletionItem(spec.name, vscode.CompletionItemKind.Function);
+          item.detail = spec.example;
+          item.documentation = new vscode.MarkdownString(spec.description);
+          return item;
+        });
+      }
+    },
+    "{",
+    ",",
+    '"'
+    // トリガー文字を追加
+  );
   const hoverProvider = vscode.languages.registerHoverProvider("umsc", {
     provideHover(document, position) {
       const range = document.getWordRangeAtPosition(position);
+      if (!range) {
+        return;
+      }
       const word = document.getText(range);
       const spec = COMMAND_SPECS[word];
       if (spec) {

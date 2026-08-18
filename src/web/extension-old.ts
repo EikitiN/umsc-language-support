@@ -10,7 +10,7 @@ interface CommandSpec {
   checkDoNext?: boolean;
 }
 
-// 1. 最新のコマンド定義データベース
+// 仕様書に基づくコマンド定義
 const COMMAND_SPECS: Record<string, CommandSpec> = {
   'sc_if': {
     name: 'sc_if',
@@ -137,30 +137,6 @@ const COMMAND_SPECS: Record<string, CommandSpec> = {
     example: 'add_html 0 dialogue beforeend <span\\sid="test">text</span>',
     checkDoNext: true
   },
-  'qr': {
-    name: 'qr',
-    minArgs: 1,
-    maxArgs: 99,
-    description: 'QRコードを読み取ります。\n各引数: 許容するqr識別記号',
-    example: 'qr 0 1 https://example.com',
-    checkDoNext: true
-  },
-  'change_classList': {
-    name: 'change_classList',
-    minArgs: 4,
-    maxArgs: 4,
-    description: '要素のCSSクラスを追加・削除・トグルします。\n第1引数: do_next[0/1]\n第2引数: 対象要素ID\n第3引数: クラス名\n第4引数: 操作(add/remove)',
-    example: 'change_classList 0 dialogue_area active add',
-    checkDoNext: true
-  },
-  'puzzle': {
-    name: 'puzzle',
-    minArgs: 6,
-    maxArgs: 6,
-    description: '謎解きモード。\n第一引数: 謎解き番号\n第二引数: 答えの種類(text/qr)\n第三引数: 正しい回答/qrコードの文字列/n第四引数: 正答時に実行する行番号(1-based)\n第五引数: 誤答時に実行する行番号(1-based)\n第六引数: ギブアップ時に実行する行番号(1-based)',
-    example: 'puzzle 0 text ABCDEF 1 2 3',
-    checkDoNext: true
-  },
   'parallel': {
     name: 'parallel',
     minArgs: 3,
@@ -199,77 +175,6 @@ const COMMAND_SPECS: Record<string, CommandSpec> = {
     description: 'シナリオの最後を示します。',
     example: 'end'
   }
-};
-
-// 2. JSON設定キー用補完データ定義
-interface KeyCompletionItem {
-  label: string;
-  detail: string;
-  doc: string;
-}
-
-const JSON_KEY_COMPLETIONS: Record<string, KeyCompletionItem[]> = {
-  statusIMG: [
-    { label: 'position', detail: '位置設定名', doc: 'settings/chara_settings.json の left, mid, center, right 等を指定' },
-    { label: 'size', detail: 'サイズ設定名', doc: 'settings/chara_settings.json の chara, large, full 等を指定' },
-    { label: 'x', detail: '横位置 (%)', doc: '対象要素の left に反映。数値は %' },
-    { label: 'y', detail: '縦位置 (%)', doc: '対象要素の top に反映 (bottomはauto化)。数値は %' },
-    { label: 'left', detail: '横位置 (%)', doc: 'x が指定されていない場合の left 指定。数値は %' },
-    { label: 'top', detail: '縦位置 (%)', doc: 'y が指定されていない場合の top 指定。数値は %' },
-    { label: 'bottom', detail: '下位置 (%)', doc: 'bottom に反映 (topはauto化)。数値は %' },
-    { label: 'width', detail: '幅 (%)', doc: '数値は %' },
-    { label: 'height', detail: '高さ (%)', doc: '数値は %' },
-    { label: 'zIndex', detail: '重なり順 (z-index)', doc: '数値で指定' },
-    { label: 'opacity', detail: '不透明度 (0.0〜1.0)', doc: '0(透明) 〜 1(不透明)' },
-    { label: 'transformOrigin', detail: '回転/拡大基準点', doc: '例: "center center", "bottom center"' },
-    { label: 'perspective', detail: '3D奥行き (px)', doc: 'rotateX/rotateYの遠近感。数値は px' },
-    { label: 'translateX', detail: 'X移動量 (px)', doc: '数値は px' },
-    { label: 'translateY', detail: 'Y移動量 (px)', doc: '数値は px' },
-    { label: 'rotate', detail: 'Z軸回転 (deg)', doc: '数値は deg' },
-    { label: 'rotateX', detail: 'X軸3D回転 (deg)', doc: '数値は deg' },
-    { label: 'rotateY', detail: 'Y軸3D回転 (deg)', doc: '数値は deg' },
-    { label: 'scale', detail: '拡大縮小率 (縦横両方)', doc: '1 が等倍 (例: 1.2)' },
-    { label: 'scaleX', detail: '横方向拡大縮小率', doc: '1 が等倍' },
-    { label: 'scaleY', detail: '縦方向拡大縮小率', doc: '1 が等倍' },
-    { label: 'flipX', detail: '左右反転 (1/0)', doc: '1 で反転、0 で解除' },
-    { label: 'flipY', detail: '上下反転 (1/0)', doc: '1 で反転、0 で解除' },
-    { label: 'filter', detail: 'CSSフィルター直接指定', doc: 'None または none で解除' },
-    { label: 'brightness', detail: '明るさ (%)', doc: '数値は % (例: 80, 120)' },
-    { label: 'blur', detail: 'ぼかし (px)', doc: '数値は px' },
-    { label: 'saturate', detail: '彩度 (%)', doc: '数値は %' },
-    { label: 'duration', detail: '変化時間 (ms)', doc: 'アニメーション時間。数値は ms' },
-    { label: 'easing', detail: 'イージング', doc: 'ease, linear, ease-in-out 等' }
-  ],
-  disp_text: [
-    { label: 'color', detail: '文字色', doc: 'CSSカラーコード (例: "#ffdddd", "red")' },
-    { label: 'fontWeight', detail: '文字の太さ', doc: 'bold, normal 等' },
-    { label: 'ids', detail: '任意ID用スタイル設定', doc: '例: {"targetId":{"color":"red"}}' },
-    { label: 'name', detail: '名前枠スタイル設定', doc: '例: {"name":{"color":"white"}}' },
-    { label: 'nameFrame', detail: '名前フレームスタイル設定', doc: '例: {"nameFrame":{"opacity":"0.8"}}' },
-    { label: 'fadeIn', detail: 'フェードイン有無 (1/0)', doc: '1 で有効、0 で無効 (デフォルト: 0)' },
-    { label: 'fadeInDuration', detail: 'フェードイン時間 (秒)', doc: '秒数で指定 (デフォルト: 0.5)' },
-    { label: 'fadeOut', detail: 'フェードアウト有無 (1/0)', doc: '1 で有効、0 で無効 (デフォルト: 0)' },
-    { label: 'fadeOutDuration', detail: 'フェードアウト時間 (秒)', doc: '秒数で指定 (デフォルト: 0.5)' },
-    { label: 'dimInactiveChara', detail: '非話者暗転有無 (1/0)', doc: '1 で他のキャラを暗くする (dialogue時デフォルト: 1)' },
-    { label: 'speakerId', detail: '話者画像ID', doc: '第4引数の代わりに判定に使う画像ID' },
-    { label: 'inactiveCharaBrightness', detail: '非話者時の明るさ (%)', doc: '数値は % (デフォルト: 55)' },
-    { label: 'inactiveCharaDuration', detail: '非話者暗転フェード時間 (秒)', doc: '秒数で指定 (デフォルト: 0.3)' }
-  ],
-  status_text: [
-    { label: 'color', detail: '文字色', doc: 'CSSカラーコード (例: "#ff99ff")' },
-    { label: 'opacity', detail: '不透明度 (0.0〜1.0)', doc: '0(透明) 〜 1(不透明)' },
-    { label: 'scale', detail: '文字拡大縮小率 (縦横両方)', doc: '1 が等倍 (例: 1.15)' },
-    { label: 'scaleX', detail: '横方向拡大縮小率', doc: '1 が等倍' },
-    { label: 'scaleY', detail: '縦方向拡大縮小率', doc: '1 が等倍' },
-    { label: 'transformOrigin', detail: '拡大縮小基準点', doc: '例: "center center"' },
-    { label: 'duration', detail: '変化時間 (ms)', doc: '色/拡大/透明度の変化時間。数値は ms' },
-    { label: 'easing', detail: 'イージング', doc: '省略時は ease' },
-    { label: 'shake', detail: '揺れ指定 (1/0 または px)', doc: '0 で解除、1 または揺れ幅数値(px)で実行' },
-    { label: 'shakeAmount', detail: '揺れ幅 (px等)', doc: '例: "4px", "8px"' },
-    { label: 'shakeDuration', detail: '揺れ時間 (ms)', doc: '数値は ms (デフォルト: 500)' },
-    { label: 'shakeEasing', detail: '揺れイージング', doc: 'デフォルト: ease-in-out' },
-    { label: 'shakeCount', detail: '揺れ繰り返し回数', doc: 'デフォルト: 1' }
-  ]
 };
 
 export function activate(context: vscode.ExtensionContext) {
@@ -368,49 +273,21 @@ export function activate(context: vscode.ExtensionContext) {
   }
 
   // 自動補完（CompletionProvider）
-  const completionProvider = vscode.languages.registerCompletionItemProvider(
-    'umsc',
-    {
-      provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-        const lineText = document.lineAt(position.line).text;
-        const textUntilPosition = lineText.substring(0, position.character);
-        const firstWord = lineText.trim().split(/\s+/)[0];
-
-        // カーソルが { と } の間に存在するか判定 (JSONキー補完)
-        const lastOpenBrace = textUntilPosition.lastIndexOf('{');
-        const lastCloseBrace = textUntilPosition.lastIndexOf('}');
-
-        if (lastOpenBrace !== -1 && lastOpenBrace > lastCloseBrace) {
-          if (JSON_KEY_COMPLETIONS[firstWord]) {
-            return JSON_KEY_COMPLETIONS[firstWord].map(item => {
-              const completionItem = new vscode.CompletionItem(item.label, vscode.CompletionItemKind.Property);
-              completionItem.insertText = `${item.label}: `;
-              completionItem.detail = item.detail;
-              completionItem.documentation = new vscode.MarkdownString(item.doc);
-              return completionItem;
-            });
-          }
-        }
-
-        // 通常のコマンド名補完
-        return Object.values(COMMAND_SPECS).map(spec => {
-          const item = new vscode.CompletionItem(spec.name, vscode.CompletionItemKind.Function);
-          item.detail = spec.example;
-          item.documentation = new vscode.MarkdownString(spec.description);
-          return item;
-        });
-      }
-    },
-    '{', ',', '"' // トリガー文字を追加
-  );
+  const completionProvider = vscode.languages.registerCompletionItemProvider('umsc', {
+    provideCompletionItems() {
+      return Object.values(COMMAND_SPECS).map(spec => {
+        const item = new vscode.CompletionItem(spec.name, vscode.CompletionItemKind.Function);
+        item.detail = spec.example;
+        item.documentation = new vscode.MarkdownString(spec.description);
+        return item;
+      });
+    }
+  });
 
   // ホバーヘルプ（HoverProvider）
   const hoverProvider = vscode.languages.registerHoverProvider('umsc', {
     provideHover(document, position) {
       const range = document.getWordRangeAtPosition(position);
-      if (!range) {
-        return;
-      }
       const word = document.getText(range);
       const spec = COMMAND_SPECS[word];
 
